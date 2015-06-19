@@ -138,6 +138,33 @@ namespace Cassandra.IntegrationTests.Core
         }
 
         /// <summary>
+        ///  Tests the WriteTimeoutException for Batch requests. Create a 2 node cluster and write out a
+        ///  single key at CL.ALL. Then forcibly kill single node and attempt to write the
+        ///  same key at CL.ALL.
+        /// </summary>
+        [Test]
+        public void WriteTimeoutExceptionBatch()
+        {
+            var testCluster = TestClusterManager.GetNonShareableTestCluster(2, 1, true, false);
+            using (var cluster = Cluster.Builder().AddContactPoint(testCluster.InitialContactPoint).WithRetryPolicy(FallthroughRetryPolicy.Instance).Build())
+            {
+                var session = cluster.Connect();
+                session.Execute(String.Format(TestUtils.CreateKeyspaceSimpleFormat, "ks1", 2));
+                session.Execute(String.Format(TestUtils.CreateTableSimpleFormat, "ks1.tbl1"));
+                session.Execute(new SimpleStatement("INSERT INTO ks1.tbl1 (k, i) VALUES ('one', 1)").SetConsistencyLevel(ConsistencyLevel.All));
+                var batch = new BatchStatement();
+                batch.Add(new SimpleStatement("INSERT INTO ks1.tbl1 (k, i) VALUES ('two', 2)"));
+                batch.Add(new SimpleStatement("INSERT INTO ks1.tbl1 (k, i) VALUES ('three', 3)"));
+                testCluster.StopForce(2);
+                Thread.Sleep(5000);
+                var ex = Assert.Throws<WriteTimeoutException>(() => session.Execute(batch.SetConsistencyLevel(ConsistencyLevel.All)));
+                Assert.AreEqual(ConsistencyLevel.All, ex.ConsistencyLevel);
+                Assert.AreEqual(1, ex.ReceivedAcknowledgements);
+                Assert.AreEqual(2, ex.RequiredAcknowledgements);
+            }
+        }
+
+        /// <summary>
         ///  Tests SyntaxError. Tests basic message and copy abilities.
         /// </summary>
         [Test]
