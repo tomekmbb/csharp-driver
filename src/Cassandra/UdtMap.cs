@@ -14,12 +14,13 @@
 //   limitations under the License.
 //
 
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-﻿using Cassandra.Serialization;
+using Cassandra.Mapping.TypeConversion;
+using Cassandra.Serialization;
 
 namespace Cassandra
 {
@@ -83,7 +84,10 @@ namespace Cassandra
         protected readonly Dictionary<PropertyInfo, string> _propertyToFieldName;
         // ReSharper enable InconsistentNaming
         private Serializer _serializer;
-        protected const BindingFlags PropertyFlags = BindingFlags.FlattenHierarchy | BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance;
+        internal static TypeConverter TypeConverter = new DefaultTypeConverter();
+
+        public const BindingFlags PropertyFlags =
+            BindingFlags.FlattenHierarchy | BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance;
 
         protected internal Type NetType { get; protected set; }
 
@@ -272,9 +276,14 @@ namespace Cassandra
             {
                 var field = Definition.Fields[i];
                 var prop = GetPropertyForUdtField(field.Name);
+                var fieldTargetType = _serializer.GetClrType(field.TypeCode, field.TypeInfo);
                 if (prop == null)
                 {
                     continue;
+                }
+                if (!prop.PropertyType.IsAssignableFrom(fieldTargetType))
+                {
+                    values[i] = TypeConverter.ConvertToUdtFieldFromDbValue(fieldTargetType, prop.PropertyType, values[i]);
                 }
                 prop.SetValue(obj, values[i], null);
             }
