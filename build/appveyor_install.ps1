@@ -1,7 +1,7 @@
 $env:JAVA_HOME="C:\Program Files\Java\jdk1.8.0"
 $env:PYTHON="C:\Python27-x64"
 $env:PATH="$($env:PYTHON);$($env:PYTHON)\Scripts;$($env:JAVA_HOME)\bin;$($env:PATH)"
-$dep_dir="C:\Users\appveyor\deps"
+$dep_dir="$($env:USERPROFILE)\deps"
 
 $computerSystem = Get-CimInstance CIM_ComputerSystem
 $computerOS = Get-CimInstance CIM_OperatingSystem
