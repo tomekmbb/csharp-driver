@@ -151,25 +151,25 @@ namespace Cassandra.IntegrationTests.Core
                 //remove one connection
                 var ports = SCassandraManager.GetListOfConnectedPorts().Result;
                 SCassandraManager.DropConnection(ports[ports.Length-1]).Wait();
-                Thread.Sleep(100); //wait few miliseconds to update state of driver
+                Thread.Sleep(500); //wait few miliseconds to update state of driver
                 Assert.AreEqual(3, pool.OpenConnections);
                 Assert.IsTrue(h1.IsUp);
                 //remove one connection
                 ports = SCassandraManager.GetListOfConnectedPorts().Result;
                 SCassandraManager.DropConnection(ports[ports.Length - 1]).Wait();
-                Thread.Sleep(100); //wait few miliseconds to update state of driver
+                Thread.Sleep(500); //wait few miliseconds to update state of driver
                 Assert.AreEqual(2, pool.OpenConnections);
                 Assert.IsTrue(h1.IsUp);
                 //remove one connection
                 ports = SCassandraManager.GetListOfConnectedPorts().Result;
                 SCassandraManager.DropConnection(ports[ports.Length - 1]).Wait();
-                Thread.Sleep(100); //wait few miliseconds to update state of driver
+                Thread.Sleep(500); //wait few miliseconds to update state of driver
                 Assert.AreEqual(1, pool.OpenConnections);
                 Assert.IsTrue(h1.IsUp);
                 //remove one connection
                 ports = SCassandraManager.GetListOfConnectedPorts().Result;
                 SCassandraManager.DropConnection(ports[ports.Length - 1]).Wait();
-                Thread.Sleep(100); //wait few miliseconds to update state of driver
+                Thread.Sleep(500); //wait few miliseconds to update state of driver
                 Assert.AreEqual(0, pool.OpenConnections);
                 Assert.Throws<NoHostAvailableException>(() => session.Execute("SELECT * FROM system.local"));
                 Assert.IsFalse(h1.IsUp);

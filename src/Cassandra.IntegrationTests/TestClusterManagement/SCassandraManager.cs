@@ -36,6 +36,7 @@ namespace Cassandra.IntegrationTests.TestClusterManagement
             var primingPortReady = false;
             var scassandraPortReady = false;
             var isReady = false;
+            var isPortAlreadyUsed = false;
             _scassandraProcess.OutputDataReceived += (sender, e) =>
             {
                 if (e.Data == null || isReady) return;
@@ -46,6 +47,12 @@ namespace Cassandra.IntegrationTests.TestClusterManagement
                 if (e.Data.Contains("Bound to localhost/127.0.0.1:8043"))
                 {
                     primingPortReady = true;
+                }
+
+                if (e.Data.Contains("Unable to bind to port 8042"))
+                {
+                    isPortAlreadyUsed = true;
+                    eventWaitHandler.Set();
                 }
 
                 if (scassandraPortReady && primingPortReady)
@@ -64,9 +71,17 @@ namespace Cassandra.IntegrationTests.TestClusterManagement
             _scassandraProcess.BeginOutputReadLine();
             _scassandraProcess.BeginErrorReadLine();
 
-            eventWaitHandler.WaitOne(10000);
+            eventWaitHandler.WaitOne(20000);
+            if (isPortAlreadyUsed)
+            {
+                Stop();
+                throw new Exception("Scassandra not started, port 8042 already in use");
+            }
             if (!isReady)
+            {
+                Stop();
                 throw new Exception("SCassandra not started!");
+            }
         }
 
         public static void Stop()
