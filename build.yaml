@@ -22,8 +22,7 @@ build:
       echo "==========installing saxon parser==========="
       sudo apt-get install -y libsaxon-java
 
-      ./build/scassandra_install.sh
-      export SCASSANDRA_JAR=$HOME/deps/scassandra-server-1.0.10/server/build/libs/scassandra-server_2.11-1.0.10-standalone.jar     
+      export SCASSANDRA_JAR=$HOME/scassandra-server_2.11-1.0.10-standalone.jar     
  
       if [ $CSHARP_VERSION = 'mono' ]; then
           echo "==========csharp verion mono=========="
