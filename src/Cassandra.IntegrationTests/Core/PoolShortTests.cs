@@ -131,7 +131,7 @@ namespace Cassandra.IntegrationTests.Core
                                  .WithPoolingOptions(new PoolingOptions()
                                      .SetCoreConnectionsPerHost(HostDistance.Local, connectionLength)
                                      .SetMaxConnectionsPerHost(HostDistance.Local, connectionLength)
-                                     .SetHeartBeatInterval(0));
+                                     .SetHeartBeatInterval(2));
             using (var cluster = builder.Build())
             {
                 var session = (Session)cluster.Connect();
@@ -151,25 +151,25 @@ namespace Cassandra.IntegrationTests.Core
                 //remove one connection
                 var ports = SCassandraManager.GetListOfConnectedPorts().Result;
                 SCassandraManager.DropConnection(ports[ports.Length-1]).Wait();
-                Thread.Sleep(500); //wait few miliseconds to update state of driver
+                TestHelper.WaitUntil(() => pool.OpenConnections == 3);
                 Assert.AreEqual(3, pool.OpenConnections);
                 Assert.IsTrue(h1.IsUp);
                 //remove one connection
                 ports = SCassandraManager.GetListOfConnectedPorts().Result;
                 SCassandraManager.DropConnection(ports[ports.Length - 1]).Wait();
-                Thread.Sleep(500); //wait few miliseconds to update state of driver
+                TestHelper.WaitUntil(() => pool.OpenConnections == 2);
                 Assert.AreEqual(2, pool.OpenConnections);
                 Assert.IsTrue(h1.IsUp);
                 //remove one connection
                 ports = SCassandraManager.GetListOfConnectedPorts().Result;
                 SCassandraManager.DropConnection(ports[ports.Length - 1]).Wait();
-                Thread.Sleep(500); //wait few miliseconds to update state of driver
+                TestHelper.WaitUntil(() => pool.OpenConnections == 1);
                 Assert.AreEqual(1, pool.OpenConnections);
                 Assert.IsTrue(h1.IsUp);
                 //remove one connection
                 ports = SCassandraManager.GetListOfConnectedPorts().Result;
                 SCassandraManager.DropConnection(ports[ports.Length - 1]).Wait();
-                Thread.Sleep(500); //wait few miliseconds to update state of driver
+                TestHelper.WaitUntil(() => pool.OpenConnections == 0);
                 Assert.AreEqual(0, pool.OpenConnections);
                 Assert.Throws<NoHostAvailableException>(() => session.Execute("SELECT * FROM system.local"));
                 Assert.IsFalse(h1.IsUp);
