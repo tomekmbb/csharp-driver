@@ -131,7 +131,8 @@ namespace Cassandra.IntegrationTests.Core
                                  .WithPoolingOptions(new PoolingOptions()
                                      .SetCoreConnectionsPerHost(HostDistance.Local, connectionLength)
                                      .SetMaxConnectionsPerHost(HostDistance.Local, connectionLength)
-                                     .SetHeartBeatInterval(2000));
+                                     .SetHeartBeatInterval(2000))
+                                 .WithReconnectionPolicy(new ConstantReconnectionPolicy(long.MaxValue));
             using (var cluster = builder.Build())
             {
                 var session = (Session)cluster.Connect();
