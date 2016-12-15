@@ -263,8 +263,8 @@ namespace Cassandra.IntegrationTests.Core
             }
         }
 
-        [Test, TestTimeout(5 * 60 * 1000), Repeat(10)]
-        public async Task Session_With_Host_Changing_Distance()
+        [Test, TestTimeout(5 * 60 * 1000)]
+        public async Task Session_With_Host_Changing_Distance([Range(11, 20)] int repeating)
         {
             var lbp = new DistanceChangingLbp();
             var builder = Cluster.Builder()
@@ -277,7 +277,7 @@ namespace Cassandra.IntegrationTests.Core
                 var localSession = (Session)localCluster.Connect();
                 var remoteHost = localCluster.AllHosts().First(h => TestHelper.GetLastAddressByte(h) == 2);
                 var stopWatch = new Stopwatch();
-                Func<Task<RowSet>> execute = () =>
+                Func<Task<RowSet>> execute = async () =>
                 {
                     var count = Interlocked.Increment(ref counter);
                     if (count == 80)
@@ -286,11 +286,16 @@ namespace Cassandra.IntegrationTests.Core
                         lbp.SetRemoteHost(remoteHost);
                         stopWatch.Start();
                     }
-                    else if (count >= 240 && stopWatch.ElapsedMilliseconds > 1400)
+                    else if (count >= 240)
                     {
+                        while (stopWatch.ElapsedMilliseconds < 2000)
+                        {
+                            // Avoid changing the distance too eagerly 
+                            await Task.Delay(100);
+                        }
                         lbp.SetRemoteHost(null);
                     }
-                    return localSession.ExecuteAsync(new SimpleStatement("SELECT key FROM system.local"));
+                    return await localSession.ExecuteAsync(new SimpleStatement("SELECT key FROM system.local"));
                 };
                 await TestHelper.TimesLimit(execute, 12000, 32);
                 var hosts = localCluster.AllHosts().ToArray();
