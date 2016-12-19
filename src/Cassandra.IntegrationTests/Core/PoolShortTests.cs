@@ -119,7 +119,7 @@ namespace Cassandra.IntegrationTests.Core
         }
         
         [Test]
-        public void MarkHostDown_PartialPoolConnection()
+        public async Task MarkHostDown_PartialPoolConnection()
         {
             //start scassandra
             SCassandraManager.Start();
@@ -145,37 +145,29 @@ namespace Cassandra.IntegrationTests.Core
                     ) == allHosts.Count * connectionLength);
                 var h1 = allHosts.FirstOrDefault();
                 var pool = session.GetOrCreateConnectionPool(h1, HostDistance.Local);
-                SCassandraManager.DisableConnectionListener().Wait();
-
-                Assert.AreEqual(4, pool.OpenConnections);
-                Assert.IsTrue(h1.IsUp);
-                //remove one connection
-                var ports = SCassandraManager.GetListOfConnectedPorts().Result;
-                SCassandraManager.DropConnection(ports[ports.Length-1]).Wait();
-                session.Execute("SELECT * FROM system.local");
-                TestHelper.WaitUntil(() => pool.OpenConnections == 3);
-                Assert.AreEqual(3, pool.OpenConnections);
-                Assert.IsTrue(h1.IsUp);
-                //remove one connection
-                ports = SCassandraManager.GetListOfConnectedPorts().Result;
-                SCassandraManager.DropConnection(ports[ports.Length - 1]).Wait();
-                session.Execute("SELECT * FROM system.local");
-                TestHelper.WaitUntil(() => pool.OpenConnections == 2);
-                Assert.AreEqual(2, pool.OpenConnections);
-                Assert.IsTrue(h1.IsUp);
-                //remove one connection
-                ports = SCassandraManager.GetListOfConnectedPorts().Result;
-                SCassandraManager.DropConnection(ports[ports.Length - 1]).Wait();
-                session.Execute("SELECT * FROM system.local");
-                TestHelper.WaitUntil(() => pool.OpenConnections == 1);
-                Assert.AreEqual(1, pool.OpenConnections);
-                Assert.IsTrue(h1.IsUp);
-                //remove one connection
-                ports = SCassandraManager.GetListOfConnectedPorts().Result;
-                SCassandraManager.DropConnection(ports[ports.Length - 1]).Wait();
-                Assert.Throws<NoHostAvailableException>(() => session.Execute("SELECT * FROM system.local"));
-                TestHelper.WaitUntil(() => pool.OpenConnections == 0);
-                Assert.AreEqual(0, pool.OpenConnections);
+                var ports = await SCassandraManager.GetListOfConnectedPorts();
+                // 4 pool connections + the control connection
+                Assert.AreEqual(5, ports.Length);
+                await SCassandraManager.DisableConnectionListener();
+                // Remove the first connections
+                for (var i = 0; i < 3; i++)
+                {
+                    // Closure
+                    var index = i;
+                    ports = await SCassandraManager.GetListOfConnectedPorts();
+                    Assert.AreEqual(5 - index, ports.Length);
+                    await SCassandraManager.DropConnection(ports.Last());
+                    // Host pool could have between pool.OpenConnections - i and pool.OpenConnections - i - 1
+                    TestHelper.WaitUntil(() => pool.OpenConnections >= 4 - index - 1 && pool.OpenConnections <= 4 - index);
+                    Assert.LessOrEqual(pool.OpenConnections, 4 - index);
+                    Assert.GreaterOrEqual(pool.OpenConnections, 4 - index - 1);
+                    Assert.IsTrue(h1.IsUp);
+                }
+                ports = await SCassandraManager.GetListOfConnectedPorts();
+                Assert.AreEqual(2, ports.Length);
+                await SCassandraManager.DropConnection(ports[1]);
+                await SCassandraManager.DropConnection(ports[0]);
+                TestHelper.WaitUntil(() => pool.OpenConnections == 0 && !h1.IsUp);
                 Assert.IsFalse(h1.IsUp);
             }
         }
