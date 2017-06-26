@@ -54,12 +54,8 @@ on_failure:
       Write-Host "Build failed"
 on_finish:
   - ps: |
-      $reportType = "junit"
-      $xsltPath = "tools\trx-to-junit.xslt"
-      If ("$($env:CI_TYPE)" -eq "MEMORY") {
-        $reportType = "xunit"
-        $xsltPath = "tools\nunit3-xunit.xslt"
+      If ("$($env:CI_TYPE)" -nq "MEMORY") {
+        xml tr tools\trx-to-junit.xslt TestResult.xml > Results.xml
       }
-      xml tr $xsltPath TestResult.xml > Results.xml
       $wc = New-Object 'System.Net.WebClient'
-      $wc.UploadFile("https://ci.appveyor.com/api/testresults/$($reportType)/$($env:APPVEYOR_JOB_ID)", (Resolve-Path .\Results.xml))
+      $wc.UploadFile("https://ci.appveyor.com/api/testresults/junit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path .\Results.xml))
