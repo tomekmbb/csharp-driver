@@ -54,7 +54,7 @@ on_failure:
       Write-Host "Build failed"
 on_finish:
   - ps: |
-      If ("$($env:CI_TYPE)" -nq "MEMORY") {
+      If ("$($env:CI_TYPE)" -ne "MEMORY") {
         xml tr tools\trx-to-junit.xslt TestResult.xml > Results.xml
       }
       $wc = New-Object 'System.Net.WebClient'
