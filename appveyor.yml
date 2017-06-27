@@ -14,11 +14,9 @@ environment:
     - TARGET: net452
       CI_TYPE: UNIT
       PROJECT: Cassandra.Tests
-      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
     - TARGET: netcoreapp1.0
       CI_TYPE: UNIT
       PROJECT: Cassandra.Tests
-      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
     # - TARGET: net452
     #   CASSANDRA_VERSION: 3.10
     #   CI_TYPE: INTEGRATION
