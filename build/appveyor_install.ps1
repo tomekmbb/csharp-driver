@@ -80,7 +80,7 @@ If (!(Test-Path $sslPath)) {
 }
 
 #install dotMemory unit
-$dotMemory_base = "C:$($dep_dir)\dotMemory"
+$dotMemory_base = "$($dep_dir)\dotMemory"
 If (!(Test-Path $dotMemory_base)) {
   Write-Host "Installing dotMemory"
   $dotMemory_url = "https://download-cf.jetbrains.com/resharper/JetBrains.dotMemoryUnit.2.3.20160517.113140.zip"
