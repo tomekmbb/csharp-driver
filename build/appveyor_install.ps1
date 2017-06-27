@@ -90,6 +90,8 @@ If (!(Test-Path $dotMemory_base)) {
 }
 $env:PATH="$($dotMemory_base);$($env:PATH)"
 
+#enable dotMemory at firewall
+netsh advfirewall firewall add rule name="dotMemory" dir=in action=allow program="$($dotMemory_base)\dotMemoryUnit.exe" enable=yes
 
 Write-Host "Set execution Policy"
 Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Scope Process
