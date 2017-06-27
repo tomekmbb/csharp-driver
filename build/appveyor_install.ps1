@@ -2,7 +2,7 @@ $env:JAVA_HOME="C:\Program Files\Java\jdk1.8.0"
 $env:PYTHON="C:\Python27-x64"
 $env:PATH="$($env:PYTHON);$($env:PYTHON)\Scripts;$($env:JAVA_HOME)\bin;$($env:PATH)"
 $env:PATHEXT="$($env:PATHEXT);.PY"
-$dep_dir="$($env:HOMEPATH)\deps"
+$dep_dir="C:$($env:HOMEPATH)\deps"
 
 $computerSystem = Get-CimInstance CIM_ComputerSystem
 $computerCPU = Get-CimInstance CIM_Processor
@@ -80,7 +80,7 @@ If (!(Test-Path $sslPath)) {
 }
 
 #install dotMemory unit
-$dotMemory_base = "$($dep_dir)\dotMemory"
+$dotMemory_base = "C:$($dep_dir)\dotMemory"
 If (!(Test-Path $dotMemory_base)) {
   Write-Host "Installing dotMemory"
   $dotMemory_url = "https://download-cf.jetbrains.com/resharper/JetBrains.dotMemoryUnit.2.3.20160517.113140.zip"
@@ -90,8 +90,9 @@ If (!(Test-Path $dotMemory_base)) {
 }
 $env:PATH="$($dotMemory_base);$($env:PATH)"
 
-#enable dotMemory at firewall
-netsh advfirewall firewall add rule name="dotMemory" dir=in action=allow program="$($dotMemory_base)\dotMemoryUnit.exe" enable=yes
+Write-Host "enable dotMemory at firewall"
+netsh advfirewall firewall add rule name="dotMemory" dir=in action=allow program="C:$($dotMemory_base)\dotMemoryUnit.exe" enable=yes
+netsh advfirewall firewall add rule name="dotMemoryOut" dir=out action=allow program="C:$($dotMemory_base)\dotMemoryUnit.exe" enable=yes
 
 Write-Host "Set execution Policy"
 Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Scope Process
