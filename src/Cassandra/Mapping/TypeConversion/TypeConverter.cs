@@ -434,10 +434,6 @@ namespace Cassandra.Mapping.TypeConversion
             {
                 throw new ArgumentNullException("method");
             }
-            if (!method.IsStatic)
-            {
-                throw new ArgumentException("The provided method must be static.", "method");
-            }
             var delegateType = Expression.GetFuncType(
                 method.GetParameters().Select(p => p.ParameterType)
                 .Concat(new [] { method.ReturnType }).ToArray());
