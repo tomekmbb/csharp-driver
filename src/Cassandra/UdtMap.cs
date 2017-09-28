@@ -281,7 +281,7 @@ namespace Cassandra
                 {
                     continue;
                 }
-                if (!prop.PropertyType.IsAssignableFrom(fieldTargetType))
+                if (!prop.PropertyType.GetTypeInfo().IsAssignableFrom(fieldTargetType))
                 {
                     values[i] = TypeConverter.ConvertToUdtFieldFromDbValue(fieldTargetType, prop.PropertyType, values[i]);
                 }

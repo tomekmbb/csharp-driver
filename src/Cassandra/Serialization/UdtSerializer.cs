@@ -15,6 +15,7 @@
 //
 
 using System;
+using System.Reflection;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 
@@ -109,7 +110,7 @@ namespace Cassandra.Serialization
                 if (prop != null)
                 {
                     fieldValue = prop.GetValue(value, null);
-                    if (!fieldTargetType.IsAssignableFrom(prop.PropertyType))
+                    if (!prop.PropertyType.GetTypeInfo().IsAssignableFrom(fieldTargetType))
                     {
                         fieldValue = UdtMap.TypeConverter.ConvertToDbFromUdtFieldValue(prop.PropertyType,
                                                fieldTargetType,
