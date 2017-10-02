@@ -178,27 +178,6 @@ namespace Cassandra
             {
                 throw new DriverInternalError("Serializer can not be null");
             }
-            //Check that the field type and the property type matches
-            foreach (var field in Definition.Fields)
-            {
-                if (field.TypeCode == ColumnTypeCode.Udt)
-                {
-                    //We deal with nested UDTs later
-                    continue;
-                }
-                var prop = GetPropertyForUdtField(field.Name);
-                if (prop == null)
-                {
-                    //No mapping defined
-                    continue;
-                }
-                //Check if its assignable to and from
-                var fieldTargetType = _serializer.GetClrType(field.TypeCode, field.TypeInfo);
-                if (!prop.PropertyType.GetTypeInfo().IsAssignableFrom(fieldTargetType))
-                {
-                    throw new InvalidTypeException(string.Format("{0} type {1} is not assignable to {2}", field.Name, fieldTargetType.Name, prop.PropertyType.Name));
-                }
-            }
             //Check that there isn't a map to a non existent field
             foreach (var fieldName in _fieldNameToProperty.Keys)
             {
