@@ -72,34 +72,35 @@ namespace Cassandra.IntegrationTests.Linq.LinqTable
 
             var table = new Table<Band>(_session, new MappingConfiguration().Define(new Map<Band>().TableName("band")));
             var id = Guid.NewGuid();
-            var album = new Album
-            {
-                Id = Guid.NewGuid(),
-                Name = "The Colour and the Shape",
-                PublishingDate = DateTimeOffset.Parse("1997-05-20"),
-                Songs = new List<Song>
-                {
-                    new Song
-                    {
-                        Id = Guid.NewGuid(),
-                        Artist = "Foo Fighters",
-                        Title = "Monkey Wrench"
-                    },
-                    new Song
-                    {
-                        Id = Guid.NewGuid(),
-                        Artist = "Foo Fighters",
-                        Title = "Everlong"
-                    }
-                }
-            };
             var band = new Band
             {
                 Id = id,
                 Name = "Foo Fighters",
-                Albuns = new List<Album>()
+                Albuns = new List<Album>
+                {
+                    new Album
+                    {
+                        Id = Guid.NewGuid(),
+                        Name = "The Colour and the Shape",
+                        PublishingDate = DateTimeOffset.Parse("1997-05-20"),
+                        Songs = new List<Song>
+                        {
+                            new Song
+                            {
+                                Id = Guid.NewGuid(),
+                                Artist = "Foo Fighters",
+                                Title = "Monkey Wrench"
+                            },
+                            new Song
+                            {
+                                Id = Guid.NewGuid(),
+                                Artist = "Foo Fighters",
+                                Title = "Everlong"
+                            }
+                        }
+                    }
+                }
             };
-            band.Albuns.Add(album);
             table.Insert(band).Execute();
             //Check that the values exists using core driver
             var row = _session.Execute(new SimpleStatement("SELECT * FROM band WHERE id = ?", id)).First();
