@@ -43,7 +43,7 @@ namespace Cassandra.IntegrationTests.Linq.LinqTable
             _session.Execute(
                 new SimpleStatement(
                     "INSERT INTO band (id, name, albuns) VALUES (?, 'Ben Folds Five', [" +
-                    "{id: uuid(), name:'Whatever and Ever Amen', publishingdate: toTimestamp(now()), songs: [{id: uuid(), title: 'Kate', artist: 'Ben Folds Five'}," +
+                    "{id: uuid(), name:'Whatever and Ever Amen', publishingdate: '1997-02-05 04:05:00+0000', songs: [{id: uuid(), title: 'Kate', artist: 'Ben Folds Five'}," +
                     "{id: uuid(), title: 'Brick', artist: 'Ben Folds Five'}]}])",
                     _sampleId));
 
