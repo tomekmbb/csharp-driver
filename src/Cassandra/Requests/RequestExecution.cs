@@ -53,6 +53,7 @@ namespace Cassandra.Requests
                 {
                     if (t.Exception != null)
                     {
+                        t.Exception.Handle(_ => true);
                         HandleResponse(t.Exception.InnerException, null);
                         return;
                     }
