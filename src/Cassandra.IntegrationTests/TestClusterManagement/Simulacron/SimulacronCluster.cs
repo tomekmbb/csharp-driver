@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using Newtonsoft.Json.Linq;
 
 namespace Cassandra.IntegrationTests.TestClusterManagement.Simulacron
@@ -92,6 +93,16 @@ namespace Cassandra.IntegrationTests.TestClusterManagement.Simulacron
                 }
             }
             return result;
+        }
+
+        public SimulacronNode GetNode(string endpoint)
+        {
+            return DataCenters.SelectMany(dc => dc.Nodes).FirstOrDefault(n => n.ContactPoint == endpoint);
+        }
+
+        public SimulacronNode GetNode(IPEndPoint endpoint)
+        {
+            return GetNode(endpoint.ToString());
         }
     }
 }
