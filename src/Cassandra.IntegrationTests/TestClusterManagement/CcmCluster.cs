@@ -36,6 +36,10 @@ namespace Cassandra.IntegrationTests.TestClusterManagement
             }
             _ccm = new CcmBridge(Name, ClusterIpPrefix);
             _ccm.Create(_version, options.UseSsl);
+            if (options.CassandraYaml != null)
+            {
+                _ccm.UpdateConfig(options.CassandraYaml);
+            }
             _ccm.Populate(nodeLength, options.Dc2NodeLength, options.UseVNodes);
         }
 

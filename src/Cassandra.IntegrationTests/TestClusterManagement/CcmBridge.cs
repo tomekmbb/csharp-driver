@@ -96,6 +96,18 @@ namespace Cassandra.IntegrationTests.TestClusterManagement
             ExecuteCcm(string.Join(" ", parameters));
         }
 
+        public void UpdateConfig(params string[] configs)
+        {
+            if (configs == null)
+            {
+                return;
+            }
+            foreach (var c in configs)
+            {
+                ExecuteCcm(string.Format("updateconf \"{0}\"", c));
+            }
+        }
+
         public void SwitchToThis()
         {
             string switchCmd = "switch " + Name;
